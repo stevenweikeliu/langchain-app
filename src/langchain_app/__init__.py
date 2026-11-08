@@ -1,34 +1,71 @@
-from langchain_core.prompts import PromptTemplate
+import os
+
+from typing import List
+from pydantic import BaseModel, Field
+
+from langchain.agents import create_agent
+from langchain.agents.structured_output import ToolStrategy
+from langchain.tools import tool
+from langchain_core.messages import HumanMessage
+# from langchain_core.prompts import PromptTemplate
 # from langchain_openai import ChatOpenAI
 from langchain_ollama import ChatOllama
+
+from tavily import TavilyClient
+from langchain_tavily import TavilySearch
 from dotenv import load_dotenv
-import os
 
 load_dotenv()
 
+class Source(BaseModel):
+    """
+    Schema for a source used by the agent
+    """
+    url: str = Field(dsecription = "The URL of the source")
+
+class AgentResponse(BaseModel):
+    """
+    Schema for agent response with oanswer and sources
+    """
+    answer: str = Field(description="The agent's response")
+    sources: List[Source] = Field(default_factory=list, description="List of sources used to generate the answer")
+
+
+tavily = TavilyClient()
+
+
+@tool
+def search(query: str) -> str:
+    """
+    Tool that searches over Internet
+    Args:
+       query: The query to search for
+    Returns:
+       The search result
+    """
+    print(f"Search for {query}")
+    return tavily.search(query = query)
+
 def main() -> None:
-    information =  """
-Elon Reeve Musk (/ˈiːlɒn/ ⓘ EE-lon; born June 28, 1971) is an industrialist, technologist, and former public official who is the chief executive officer (CEO) and largest shareholder of Tesla and SpaceX. Musk has been the wealthiest person in the world since 2025, and became the only trillionaire (in terms of US dollars) in June 2026; as of October 2026, Forbes estimates his net worth to be $1.1 trillion.
-
-Born into the wealthy Musk family in Pretoria, South Africa, Musk emigrated in 1989 to Canada; he has Canadian citizenship since his mother was born there. He received bachelor's degrees in 1997 from the University of Pennsylvania before moving to California to pursue business ventures. In 1995, Musk co-founded Zip2, a web software company. Following its sale in 1999, he co-founded X.com, an e-commerce payment system that merged with Confinity in March 2000 to form PayPal. Musk also became an American citizen in 2002.
-    """
-
-    summary_template = """
-    Given the information {information} about a person I want you to create:
-    1. A short summary
-    2. two interesting facts about them
-    """
-
-    summary_prompt_template = PromptTemplate(
-        input_variables = ["information"], template = summary_template
-    )
-
     # llm = ChatOpenAI(temperature=0, model="gpt-5")
     llm = ChatOllama(temperature=0, model="gemma4")
+    # tools = [search]
+    better_tools = [TavilySearch(max_results=3)]
+    agent = create_agent(
+        model = llm,
+        tools = better_tools,
+        response_format = ToolStrategy(AgentResponse),
+        system_prompt=(
+            "you are a job search assistant."
+            "Parse the results into AgentResponse as structured response field in the result" # I have to include this prompt to force gemma4 to parse the results into AgentResponse pydantic object
+            "search at most 3 times."
+            "You should only search on linkedin."
+            "once you have results, immediately provide your final answer."
+        ))
+    query = HumanMessage(content = "search for maximum 3 ai engineers/software engineers jobs. Title: software engineers or AI engineers; Location: Sydney Australia")
+    result = agent.invoke({"messages":[query]})
+    print(result["structured_response"])
 
-    chain = summary_prompt_template | llm
-    response = chain.invoke(input={"information": information})
-    print(response.content)
 
 if __name__ == "__main__":
     main()
