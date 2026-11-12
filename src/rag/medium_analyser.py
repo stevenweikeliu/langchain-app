@@ -26,11 +26,11 @@ def format_docs(docs: List[Document]):
 
 def main():
     print("Initializing component....")
-    dimensions = int(os.getenv("MY_MEDIUM_EMBEDDINGS_INDEX_DIMENSIONS", 0))
+    dimensions = int(os.getenv("MEDIUM_ANALYSER_INDEX_DIMENSIONS", 0))
     if dimensions == 0:
         raise ValueError("Invalid dimensions 0 for index creation")
     embedding = OllamaEmbeddings(model=EMBEDDING_MODEL, dimensions=dimensions)
-    index_name = os.getenv("MY_MEDIUM_EMBEDDINGS_INDEX_NAME", "")
+    index_name = os.getenv("MEDIUM_ANALYSER_INDEX_NAME", "")
     store = PineconeVectorStore(
         embedding = embedding,
         index_name = index_name

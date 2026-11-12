@@ -28,8 +28,8 @@ def main():
     print(f"Created {len(texts)} chunks")
 
     # embeddings = OpenAIEmbeddings(openai_api_key = os.getenv("OPENAI_API_KEY"))
-    index_name = os.getenv("MY_MEDIUM_EMBEDDINGS_INDEX_NAME", "")
-    dimensions = int(os.getenv("MY_MEDIUM_EMBEDDINGS_INDEX_DIMENSIONS", 0))
+    index_name = os.getenv("MEDIUM_ANALYSER_INDEX_NAME", "")
+    dimensions = int(os.getenv("MEDIUM_ANALYSER_INDEX_DIMENSIONS", 0))
     if dimensions == 0:
         raise ValueError("Invalid dimensions 0 for index creation")
     model = "qwen3-embedding:8b"

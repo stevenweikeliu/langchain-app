@@ -7,8 +7,8 @@ import os
 load_dotenv()
 
 def main() -> None:
-    index_name = os.getenv("MY_MEDIUM_EMBEDDINGS_INDEX_NAME", "")
-    dimensions = int(os.getenv("MY_MEDIUM_EMBEDDINGS_INDEX_DIMENSIONS", 0))
+    index_name = os.getenv("CREATE_NEW_INDEX_NAME", "")
+    dimensions = int(os.getenv("CREATE_NEW_INDEX_DIMENSIONS", 0))
     if dimensions == 0:
         raise ValueError("Invalid dimensions 0 for index creation")
     print(f"Creating index {index_name}")
