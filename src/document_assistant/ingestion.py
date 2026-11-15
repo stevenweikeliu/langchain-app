@@ -109,7 +109,8 @@ async def async_main():
     res = tavily_crawl.invoke(
         {
             # "url": "https://python.langchain.com",
-            "url": "https://doc.rust-lang.org/stable/book/",
+            # "url": "https://doc.rust-lang.org/stable/book/",
+            "url": "https://docs.tavily.com/",
             "max_depth": 2,
             "extract_depth": "advanced",
         }
