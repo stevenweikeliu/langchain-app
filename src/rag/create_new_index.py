@@ -6,6 +6,7 @@ import os
 
 load_dotenv()
 
+
 def main() -> None:
     index_name = os.getenv("CREATE_NEW_INDEX_NAME", "")
     dimensions = int(os.getenv("CREATE_NEW_INDEX_DIMENSIONS", 0))
@@ -20,6 +21,7 @@ def main() -> None:
         spec=ServerlessSpec(cloud="aws", region="us-east-1"),
     )
     print(f"Index {index_name} created")
+
 
 if __name__ == "__main__":
     main()

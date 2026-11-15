@@ -8,13 +8,13 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
 from langchain_core.documents import Document
-from langchain_core.runnables import RunnablePassthrough 
+from langchain_core.runnables import RunnablePassthrough
 from langchain_ollama import ChatOllama, OllamaEmbeddings
 from langchain_pinecone import PineconeVectorStore
 
 load_dotenv()
 
-    
+
 EMBEDDING_MODEL = "qwen3-embedding:8b"
 CHAT_MODEL = "qwen3:1.7b"
 
@@ -31,12 +31,9 @@ def main():
         raise ValueError("Invalid dimensions 0 for index creation")
     embedding = OllamaEmbeddings(model=EMBEDDING_MODEL, dimensions=dimensions)
     index_name = os.getenv("MEDIUM_ANALYSER_INDEX_NAME", "")
-    store = PineconeVectorStore(
-        embedding = embedding,
-        index_name = index_name
-    )
+    store = PineconeVectorStore(embedding=embedding, index_name=index_name)
     retriever = store.as_retriever()
-    
+
     template = """Answer the question based only on the following context:
 {context}
 Question: {question}
@@ -58,14 +55,13 @@ Provide a detailed answer:"""
         response = llm.invoke(messages)
         return response.content
 
-
     #
     # Implementation 2:  Better RAG approach with LangChain Expression Language (LCEL)
     #
     def create_retrieval_with_lcel():
         retrieval_chain = (
             RunnablePassthrough.assign(
-                context = itemgetter("question") | retriever | format_docs
+                context=itemgetter("question") | retriever | format_docs
             )
             | prompt_template
             | llm
@@ -88,5 +84,5 @@ Provide a detailed answer:"""
     print(answer)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
