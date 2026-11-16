@@ -44,7 +44,6 @@ def retrieve_context(query: str) -> Tuple[str, list[Document]]:
 
 def make_agent():
     tools = [retrieve_context]
-    query = "Tell me about Rust programming language?"
     system_prompt = (
         "You are a helpful AI assistant that answers questions about technology."
         "You have access to a tool that retrieves context from relevant documentations."
